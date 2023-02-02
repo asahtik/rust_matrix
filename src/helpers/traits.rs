@@ -1,4 +1,4 @@
-use std::ops::{Range, RangeFull, RangeInclusive, RangeFrom, RangeTo, RangeToInclusive};
+use std::{ops::{Range, RangeFull, RangeInclusive, RangeFrom, RangeTo, RangeToInclusive, Mul, MulAssign, Add, Sub, Div, Index, IndexMut, AddAssign}, fmt::Display};
 
 pub trait AsIndex {
     fn start(&self) -> Option<usize>;
@@ -59,4 +59,31 @@ impl AsIndex for RangeToInclusive<usize> {
     fn end(&self) -> Option<usize> {
         Some(self.end + 1)
     }
+}
+
+pub trait Numerical<T>: Mul<Output = T> + MulAssign + Add<Output = T> + AddAssign + Sub<Output = T> + Copy + Sized + Display {
+    fn ident() -> Self;
+    fn zero() -> Self;
+}
+
+impl<T: From<u8> + Mul<Output = T> + MulAssign + Add<Output = T> + AddAssign + Sub<Output = T> + Copy + Sized + Display> Numerical<T> for T {
+    fn ident() -> Self {
+        1.into()
+    }
+    fn zero() -> Self {
+        0.into()
+    }
+}
+
+pub trait MatOperations<T: Numerical<T>>: Mul + Add + Sub + Index<(usize, usize)> + IndexMut<(usize, usize)> + Drop + Sized {
+    fn new(rows: usize, cols: usize) -> Self;
+    
+    fn dup(&self) -> Self;
+    
+    fn get<U: AsIndex>(&self, rows: U, cols: U) -> Self;
+
+    fn t(self) -> Self;
+    fn p(self) -> Self;
+    fn scale(&mut self, scale: T) -> &mut Self;
+    fn shift(&mut self, scale: T) -> &mut Self;
 }
