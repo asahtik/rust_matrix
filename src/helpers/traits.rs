@@ -75,15 +75,18 @@ impl<T: From<u8> + Mul<Output = T> + MulAssign + Add<Output = T> + AddAssign + S
     }
 }
 
-pub trait MatOperations<T: Numerical<T>>: Mul + Add + Sub + Index<(usize, usize)> + IndexMut<(usize, usize)> + Drop + Sized {
+pub trait Matrix<T: Numerical<T>, E>: Mul + Add + Sub + Index<(usize, usize)> + IndexMut<(usize, usize)> + Sized {
     fn new(rows: usize, cols: usize) -> Self;
+    fn err(error: E) -> Self;
     
+    fn is_ok(&self) -> bool;
+    fn is_err(&self) -> bool;
     fn dup(&self) -> Self;
     
     fn get<U: AsIndex>(&self, rows: U, cols: U) -> Self;
 
     fn t(self) -> Self;
     fn p(self) -> Self;
-    fn scale(&mut self, scale: T) -> &mut Self;
-    fn shift(&mut self, scale: T) -> &mut Self;
+    fn scale(self, scale: T) -> Self;
+    fn shift(self, scale: T) -> Self;
 }
